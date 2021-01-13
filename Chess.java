@@ -1,5 +1,9 @@
 package chess;
 
+import java.util.ArrayList;
+
+import javax.swing.border.EmptyBorder;
+
 public class Start {
 
     public static void main(String[] args) {
@@ -7,14 +11,77 @@ public class Start {
     }
 }
 
+
 public class Board {
 
-    Piece[][] board;
+    Piece board[][];
 
     public Board() {
         board = new Piece[8][8];
         initialSetup();
         print();
+    }
+
+    public ArrayList<chessMove> legalMoves (String color) {
+        ArrayList<chessMove> retval = new ArrayList();
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Piece piece = board[row][col];
+
+                // System.out.println("moves for " + piece.abbreviation());
+
+                // white goes up board, black down
+                if (piece.color == color) {
+                    // System.out.println("piece belongs to  " + color + " player");
+
+                    if (piece.isPawn()) {
+                        // REALLY REFACTOR THIS
+                        // System.out.println("figure moves for " + color + " " + piece.piece);
+                        // white pawns in 1 can move 2 if empty
+                        // black pawns in 6 can move 2 if empty
+                        // otherwise can move 1 if empty - HANDLED
+                        // can take diagnoally 1 if opposite color
+                        if (color == "black") {
+                            if (row > 0) {
+                                Piece target = board[row-1][col];
+                                if (target.isEmpty()) {
+                                    String startString = makeString(row,col);
+                                    String stopString  = makeString(row-1,col);
+                                    retval.add(new chessMove(startString, stopString));
+                                }
+                            }
+                        } else if (color == "white") {
+                            if (row < 7) {
+                                Piece target = board[row+1][col];
+                                if (target.isEmpty()) {
+                                    String startString = makeString(row,col);
+                                    String stopString  = makeString(row+1,col);
+                                    retval.add(new chessMove(startString, stopString));
+                                }
+                            }
+                        }
+                    } 
+                    if (piece.isRook()) {
+                        System.out.println("figure moves for " + color + " " + piece.piece);
+                    } 
+                    if (piece.isBishop()) {
+                        System.out.println("figure moves for " + color + " " + piece.piece);
+                    } 
+                    if (piece.isKnight()) {
+                        System.out.println("figure moves for " + color + " " + piece.piece);
+                    } 
+                    if (piece.isQueen()) {
+                        System.out.println("figure moves for " + color + " " + piece.piece);
+                    } 
+                    if (piece.isKing()) {
+                        System.out.println("figure moves for " + color + " " + piece.piece);
+                    } 
+                }
+            }
+        }
+
+        return retval;
     }
 
     public int convertToColumn(String position) {
@@ -33,17 +100,25 @@ public class Board {
         return colInt;
     }
 
-    public void move(String start, String stop) {
+    public String makeString(int row, int col)
+    {
+        char first = (char)('a' + col);
+        char second = (char)('0' + row + 1);
+        String retval = String.valueOf(first) + String.valueOf(second);
+        return retval;        
+    }
+
+    public void move(chessMove theMove) {
         // for (int row=0; row<8; row++) {
         //     for(int col=0; col<8; col++) {
         //         System.out.println("(" + row + "," +  col + ") is " + board[row][col].abbreviation());
         //     }
         // }
 
-        int row1 = convertToRow(start);
-        int col1 = convertToColumn(start);
-        int row2 = convertToRow(stop);
-        int col2 = convertToColumn(stop);
+        int row1 = convertToRow(theMove.start);
+        int col1 = convertToColumn(theMove.start);
+        int row2 = convertToRow(theMove.stop);
+        int col2 = convertToColumn(theMove.stop);
 
         System.out.println("moving from (" + row1 + "," +  col1 + ") to (" + row2 + "," + col2 + ")");
         System.out.println("(" + row1 + "," +  col1 + ") was " + board[row1][col1].abbreviation() + " and (" + row2 + "," + col2 + ") was " + board[row2][col2].abbreviation());
@@ -97,15 +172,46 @@ public class Board {
 
 }
 
+public class chessMove {
+    String start;
+    String stop;
+    
+    public chessMove (String start, String stop) {
+        this.start = start;
+        this.stop  = stop;
+    }
+    public void print () {
+        System.out.print(this.start + "-" + this.stop);
+    }
+}
+
 public class Chess {
 
     Board board;
     
     public Chess() {
         this.board = new Board();
+        ArrayList<chessMove> whiteMoves = board.legalMoves("white");
+        ArrayList<chessMove> blackMoves = board.legalMoves("black");
         
-        board.move("e2","e4");
-        board.print();
+        System.out.print("white moves: ");
+
+        // these could be put into a (whiteMoves / blackMoves) array
+        for (chessMove move : whiteMoves) {
+            move.print();
+            System.out.print(" ");
+        }
+
+        System.out.println();
+        System.out.print("black moves: ");
+
+        for (chessMove move : blackMoves) {
+            move.print();
+            System.out.print(" ");
+        }
+        
+        // board.move(new chessMove("e2","e4"));
+        // board.print();
     }
 
 }
@@ -149,6 +255,62 @@ public class Piece {
             return "K";
         } else {
             return " ";
+        }
+    }
+
+    public boolean isEmpty() {
+        if (this.color == "EMPTY" || this.piece == "EMPTY") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public boolean isPawn() {
+        if (this.piece == "pawn") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isRook() {
+        if (this.piece == "rook") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isKnight() {
+        if (this.piece == "knight") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isBishop() {
+        if (this.piece == "bishop") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isKing() {
+        if (this.piece == "king") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isQueen() {
+        if (this.piece == "queen") {
+            return true;
+        } else {
+            return false;
         }
     }
 
