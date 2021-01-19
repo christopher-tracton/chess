@@ -22,6 +22,17 @@ public class Board {
         print();
     }
 
+    public void takeIfOpposite(ArrayList<chessMove> retval, int row1, int col1, int row2, int col2) {
+        Piece target = board[row2][col2];
+        Piece source = board[row1][col1];
+
+        if (!target.isEmpty() && (target.color != source.color)) {
+            String startString = makeString(row1,col1);
+            String stopString  = makeString(row2,col2);
+            retval.add(new chessMove(startString, stopString));
+        }
+    }
+
     public void moveIfEmpty(ArrayList<chessMove> retval, int row1, int col1, int row2, int col2) {
         Piece target = board[row2][col2];
         if (target.isEmpty()) {
@@ -54,33 +65,55 @@ public class Board {
                         if (color == "black") {
                             if (row > 0) {
                                 this.moveIfEmpty(retval,row,col,row-1,col);
+                                
+                                if (col > 0) {
+                                    this.takeIfOpposite(retval,row,col,row-1,col-1);
+                                }
+                                
+                                if (col < 7) {
+                                    this.takeIfOpposite(retval,row,col,row-1,col+1);
+                                }
                             }
                             if (row == 6) {
-                                this.moveIfEmpty(retval,row,col,row-2,col);
+                                Piece target = board[row-1][col];
+                                if (target.isEmpty()) {
+                                    this.moveIfEmpty(retval,row,col,row-2,col);
+                                }
                             }
                         } else if (color == "white") {
                             if (row < 7) {
                                 this.moveIfEmpty(retval,row,col,row+1,col);
+                                
+                                if (col > 0) {
+                                    this.takeIfOpposite(retval,row,col,row+1,col-1);
+                                }
+                                
+                                if (col < 7) {
+                                    this.takeIfOpposite(retval,row,col,row+1,col+1);
+                                }
                             }
                             if (row == 1) {
-                                this.moveIfEmpty(retval,row,col,row+2,col);
+                                Piece target = board[row+1][col];
+                                if (target.isEmpty()) {
+                                    this.moveIfEmpty(retval,row,col,row+2,col);
+                                }
                             }
                         }
                     } 
                     if (piece.isRook()) {
-                        System.out.println("figure moves for " + color + " " + piece.piece);
+                        // System.out.println("figure moves for " + color + " " + piece.piece);
                     } 
                     if (piece.isBishop()) {
-                        System.out.println("figure moves for " + color + " " + piece.piece);
+                        // System.out.println("figure moves for " + color + " " + piece.piece);
                     } 
                     if (piece.isKnight()) {
-                        System.out.println("figure moves for " + color + " " + piece.piece);
+                        // System.out.println("figure moves for " + color + " " + piece.piece);
                     } 
                     if (piece.isQueen()) {
-                        System.out.println("figure moves for " + color + " " + piece.piece);
+                        // System.out.println("figure moves for " + color + " " + piece.piece);
                     } 
                     if (piece.isKing()) {
-                        System.out.println("figure moves for " + color + " " + piece.piece);
+                        // System.out.println("figure moves for " + color + " " + piece.piece);
                     } 
                 }
             }
@@ -135,14 +168,18 @@ public class Board {
     }
 
     public void print() {
-        System.out.println("+----+----+----+----+----+----+----+----+");
+        System.out.println("     A    B    C    D    E    F    G    H  ");
+        System.out.println("  +----+----+----+----+----+----+----+----+");
         for (int row = 7; row >= 0; row--) {
+            System.out.print(row+1 + " ");
             for (int column = 0; column < 8; column++) {
                 System.out.print("| " + board[row][column].abbreviation() + " ");
             }
-            System.out.println("|");
-            System.out.println("+----+----+----+----+----+----+----+----+");
+            System.out.println("| " + (row+1));
+            System.out.println("  +----+----+----+----+----+----+----+----+");
         }
+        System.out.println("     A    B    C    D    E    F    G    H  ");
+        System.out.println("");
     }
 
     public void initialSetup() {
@@ -196,6 +233,30 @@ public class Chess {
     
     public Chess() {
         this.board = new Board();
+        this.listOutMoves();
+        
+        board.move(new chessMove("e2","e4"));
+        board.print();
+        this.listOutMoves();
+
+        board.move(new chessMove("e7","e5"));
+        board.print();
+        this.listOutMoves();
+
+        board.move(new chessMove("g1","f3"));
+        board.print();
+        this.listOutMoves();
+
+        board.move(new chessMove("g8","f6"));
+        board.print();
+        this.listOutMoves();
+
+        board.move(new chessMove("d7","d5"));
+        board.print();
+        this.listOutMoves();
+    }
+
+    public void listOutMoves() {
         ArrayList<chessMove> whiteMoves = board.legalMoves("white");
         ArrayList<chessMove> blackMoves = board.legalMoves("black");
         
@@ -213,10 +274,7 @@ public class Chess {
         for (chessMove move : blackMoves) {
             move.print();
             System.out.print(" ");
-        }
-        
-        // board.move(new chessMove("e2","e4"));
-        // board.print();
+        }        
     }
 
 }
