@@ -22,6 +22,15 @@ public class Board {
         print();
     }
 
+    public void moveIfEmpty(ArrayList<chessMove> retval, int row1, int col1, int row2, int col2) {
+        Piece target = board[row2][col2];
+        if (target.isEmpty()) {
+            String startString = makeString(row1,col1);
+            String stopString  = makeString(row2,col2);
+            retval.add(new chessMove(startString, stopString));
+        }
+    }
+
     public ArrayList<chessMove> legalMoves (String color) {
         ArrayList<chessMove> retval = new ArrayList();
 
@@ -44,21 +53,17 @@ public class Board {
                         // can take diagnoally 1 if opposite color
                         if (color == "black") {
                             if (row > 0) {
-                                Piece target = board[row-1][col];
-                                if (target.isEmpty()) {
-                                    String startString = makeString(row,col);
-                                    String stopString  = makeString(row-1,col);
-                                    retval.add(new chessMove(startString, stopString));
-                                }
+                                this.moveIfEmpty(retval,row,col,row-1,col);
+                            }
+                            if (row == 6) {
+                                this.moveIfEmpty(retval,row,col,row-2,col);
                             }
                         } else if (color == "white") {
                             if (row < 7) {
-                                Piece target = board[row+1][col];
-                                if (target.isEmpty()) {
-                                    String startString = makeString(row,col);
-                                    String stopString  = makeString(row+1,col);
-                                    retval.add(new chessMove(startString, stopString));
-                                }
+                                this.moveIfEmpty(retval,row,col,row+1,col);
+                            }
+                            if (row == 1) {
+                                this.moveIfEmpty(retval,row,col,row+2,col);
                             }
                         }
                     } 
