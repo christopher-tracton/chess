@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 
+import javax.lang.model.util.ElementScanner14;
 import javax.swing.border.EmptyBorder;
 
 public class Start {
@@ -15,6 +16,7 @@ public class Start {
 public class Board {
 
     Piece board[][];
+    boolean whiteToPlay = true;
 
     public Board() {
         board = new Piece[8][8];
@@ -42,8 +44,18 @@ public class Board {
         }
     }
 
-    public ArrayList<chessMove> legalMoves (String color) {
+    public ArrayList<chessMove> legalMoves () {
         ArrayList<chessMove> retval = new ArrayList();
+
+        String color;
+
+        if (whiteToPlay) {
+            color = "white";
+        }
+        else {
+            color = "black";
+        }
+        
 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
@@ -158,13 +170,16 @@ public class Board {
         int row2 = convertToRow(theMove.stop);
         int col2 = convertToColumn(theMove.stop);
 
-        System.out.println("moving from (" + row1 + "," +  col1 + ") to (" + row2 + "," + col2 + ")");
+        System.out.println("\n move : " + theMove.toString());
+        System.out.println("\nmoving from (" + row1 + "," +  col1 + ") to (" + row2 + "," + col2 + ")");
         System.out.println("(" + row1 + "," +  col1 + ") was " + board[row1][col1].abbreviation() + " and (" + row2 + "," + col2 + ") was " + board[row2][col2].abbreviation());
 
         board[row2][col2] = board[row1][col1];
         board[row1][col1] = new Piece(); 
 
         System.out.println("(" + row1 + "," +  col1 + ") is now " + board[row1][col1].abbreviation() + " and (" + row2 + "," + col2 + ") is now " + board[row2][col2].abbreviation());
+
+        whiteToPlay = !whiteToPlay;
     }
 
     public void print() {
@@ -210,6 +225,8 @@ public class Board {
             board[1][column] = new Piece("white","pawn");
             board[6][column] = new Piece("black","pawn");
         }
+
+        whiteToPlay = true;
     }
 
 }
@@ -222,9 +239,15 @@ public class chessMove {
         this.start = start;
         this.stop  = stop;
     }
+
     public void print () {
-        System.out.print(this.start + "-" + this.stop);
+        System.out.print(toString());
     }
+
+    public String toString() {
+        return this.start + "-" + this.stop;
+    }
+
 }
 
 public class Chess {
@@ -234,6 +257,9 @@ public class Chess {
     public Chess() {
         this.board = new Board();
         this.listOutMoves();
+        // board.acceptMoveFromConsole();
+        // board.print();
+        // this.listOutMoves();
         
         board.move(new chessMove("e2","e4"));
         board.print();
@@ -257,24 +283,30 @@ public class Chess {
     }
 
     public void listOutMoves() {
-        ArrayList<chessMove> whiteMoves = board.legalMoves("white");
-        ArrayList<chessMove> blackMoves = board.legalMoves("black");
+
+        if (board.whiteToPlay) {
+            System.out.println();
+            ArrayList<chessMove> whiteMoves = board.legalMoves();
+            System.out.print("white moves: ");
+            for (chessMove move : whiteMoves) {
+                move.print();
+                System.out.print(" ");
+            }
+        }
+        else {
+            System.out.println();
+            ArrayList<chessMove> blackMoves = board.legalMoves();
+            System.out.print("black moves: ");
+            for (chessMove move : blackMoves) {
+                move.print();
+                System.out.print(" ");
+            }        
+        }
         
-        System.out.print("white moves: ");
 
         // these could be put into a (whiteMoves / blackMoves) array
-        for (chessMove move : whiteMoves) {
-            move.print();
-            System.out.print(" ");
-        }
 
-        System.out.println();
-        System.out.print("black moves: ");
 
-        for (chessMove move : blackMoves) {
-            move.print();
-            System.out.print(" ");
-        }        
     }
 
 }
