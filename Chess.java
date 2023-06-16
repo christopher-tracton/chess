@@ -115,7 +115,7 @@ public class Board {
         ArrayList<Position> offsets = new ArrayList();
         ArrayList<Position> targets = new ArrayList();
 
-        // this would be different for each piece
+        // this would be different for each piece move to peice classes
         offsets.add(new Position(1, 2));
         offsets.add(new Position(1, -2));
         offsets.add(new Position(2, 1));
@@ -142,7 +142,86 @@ public class Board {
         return moves;
     }
 
+    ArrayList<ChessMove> bishopMoves(int row, int col, String color) {
+        System.out.println("\n in bishopMoves row " + row  + " col " + col);
+        
+        ArrayList<ChessMove> moves = new ArrayList();
+        ArrayList<Position> targets = new ArrayList();
 
+        // upper-left
+        for (int steps = 1; steps < 8; steps++) {
+            Position offset = new Position(steps, steps*-1);
+            offset.add(row, col);
+            if (!offset.onBoard() || (!this.isEmpty(offset) && !this.isOpposite(offset, color))) {
+                System.out.println("\n upper left stopped at step " + steps);
+                break;
+            }
+            
+            targets.add(offset);
+
+            if (!this.isEmpty(offset)) {
+                break;
+            }
+        }
+
+        // upper-right
+        for (int steps = 1; steps < 8; steps++) {
+            Position offset = new Position(steps, steps);
+            offset.add(row, col);
+            if (!offset.onBoard() || !this.isEmpty(offset) && !this.isOpposite(offset, color)) {
+                System.out.println("\n upper right stopped at step " + steps);
+                break;
+            }
+            
+            targets.add(offset);
+
+            if (!this.isEmpty(offset)) {
+                break;
+            }
+        }
+
+        // lower-left
+        for (int steps = 1; steps < 8; steps++) {
+            Position offset = new Position(steps*-1, steps*-1);
+            offset.add(row, col);
+            if (!offset.onBoard() || !this.isEmpty(offset) && !this.isOpposite(offset, color)) {
+                System.out.println("\n lower left stopped at step " + steps);
+                break;
+            }
+            
+            targets.add(offset);
+
+            if (!this.isEmpty(offset)) {
+                break;
+            }
+        }
+
+        // lower-right
+        for (int steps = 1; steps < 8; steps++) {
+            Position offset = new Position(steps*-1, steps);
+            offset.add(row, col);
+            if (!offset.onBoard() || !this.isEmpty(offset) && !this.isOpposite(offset, color)) {
+                System.out.println("\n lower left stopped at step " + steps);
+                break;
+            }
+            
+            targets.add(offset);
+
+            if (!this.isEmpty(offset)) {
+                break;
+            }
+        }
+
+        for (Position target : targets) {
+            Position start = new Position(row,col);
+            ChessMove move = new ChessMove(start,target);
+            moves.add(move);
+        }
+
+        return moves;
+    }
+
+    
     public ArrayList<ChessMove> legalMoves () {
         ArrayList<ChessMove> retval = new ArrayList();
 
@@ -172,7 +251,7 @@ public class Board {
                         // System.out.println("figure moves for " + color + " " + piece.piece);
                     } 
                     if (piece.isBishop()) {
-                        // System.out.println("figure moves for " + color + " " + piece.piece);
+                        retval.addAll(this.bishopMoves(row,col,color));
                     } 
                     if (piece.isKnight()) {
                         retval.addAll(this.knightMoves(row,col,color));
