@@ -24,28 +24,127 @@ public class Board {
         print();
     }
 
-    public void takeIfOpposite(ArrayList<chessMove> retval, int row1, int col1, int row2, int col2) {
+
+    public void takeIfOpposite(ArrayList<ChessMove> retval, int row1, int col1, int row2, int col2) {
         Piece target = board[row2][col2];
         Piece source = board[row1][col1];
 
         if (!target.isEmpty() && (target.color != source.color)) {
-            String startString = makeString(row1,col1);
-            String stopString  = makeString(row2,col2);
-            retval.add(new chessMove(startString, stopString));
+            Position startPos = new Position(row1,col1);
+            Position stopPos = new Position(row2, col2);
+            retval.add(new ChessMove(startPos, stopPos));
         }
     }
 
-    public void moveIfEmpty(ArrayList<chessMove> retval, int row1, int col1, int row2, int col2) {
+    public void moveIfEmpty(ArrayList<ChessMove> retval, int row1, int col1, int row2, int col2) {
         Piece target = board[row2][col2];
         if (target.isEmpty()) {
-            String startString = makeString(row1,col1);
-            String stopString  = makeString(row2,col2);
-            retval.add(new chessMove(startString, stopString));
+            Position startPos = new Position(row1,col1);
+            Position stopPos = new Position(row2, col2);
+            retval.add(new ChessMove(startPos, stopPos));
         }
     }
+    
+    boolean isEmpty(Position position) {
+        return board[position.r][position.c].isEmpty();
+    }
 
-    public ArrayList<chessMove> legalMoves () {
-        ArrayList<chessMove> retval = new ArrayList();
+    boolean isOpposite(Position position, String color) {
+        return board[position.r][position.c].color != color;
+    }
+
+    ArrayList<ChessMove> pawnMoves(int row, int col, String color) {
+        ArrayList<ChessMove> retval = new ArrayList();
+
+        // white pawns in 1 can move 2 if empty
+        // black pawns in 6 can move 2 if empty
+        // otherwise can move 1 if empty
+        // can take diagnoally 1 if opposite color
+        if (color == "black") {
+            if (row > 0) {
+                this.moveIfEmpty(retval,row,col,row-1,col);
+                
+                if (col > 0) {
+                    this.takeIfOpposite(retval,row,col,row-1,col-1);
+                }
+                
+                if (col < 7) {
+                    this.takeIfOpposite(retval,row,col,row-1,col+1);
+                }
+            }
+            if (row == 6) {
+                Piece target = board[row-1][col];
+                if (target.isEmpty()) {
+                    this.moveIfEmpty(retval,row,col,row-2,col);
+                }
+            }
+        } else if (color == "white") {
+            if (row < 7) {
+                this.moveIfEmpty(retval,row,col,row+1,col);
+                
+                if (col > 0) {
+                    this.takeIfOpposite(retval,row,col,row+1,col-1);
+                }
+                
+                if (col < 7) {
+                    this.takeIfOpposite(retval,row,col,row+1,col+1);
+                }
+            }
+            if (row == 1) {
+                Piece target = board[row+1][col];
+                if (target.isEmpty()) {
+                    this.moveIfEmpty(retval,row,col,row+2,col);
+                }
+            }
+        }
+
+        return retval;
+    }
+
+    ArrayList<ChessMove> knightMoves(int row, int col, String color) {
+        ArrayList<ChessMove> moves = new ArrayList();
+
+        // a knight has eight moves: (r+1,c+2),(r+1,c-2),(r+2,c+1),(r+2,c-1),(r-1,c+2),(r-1,c-2),(r-2,c+1),(r-2,c-1)
+        // some are not on the board and don't count
+        // it can move if the target is empty, and take if the target is opposite
+
+        // can this be done more elegantly?
+        // generate a list of offsets, add those offsets to row and column, throw out all those with values < 0 or > 7
+        // have a SINGLE function to generate a set of offsets for a given piece and location that can be filtered for "off-board" values
+        // or have TWO functions board::moveOffsets(piece,row,col) and board::takeOffsets(piece,row,col)
+        ArrayList<Position> offsets = new ArrayList();
+        ArrayList<Position> targets = new ArrayList();
+
+        // this would be different for each piece
+        offsets.add(new Position(1, 2));
+        offsets.add(new Position(1, -2));
+        offsets.add(new Position(2, 1));
+        offsets.add(new Position(2, -1));
+        offsets.add(new Position(-1, 2));
+        offsets.add(new Position(-1, -2));
+        offsets.add(new Position(-2, 1));
+        offsets.add(new Position(-2, -1));
+
+        // for loop on offsets and add row,col.  Drop those off board
+        for (Position position : offsets) {
+            position.add(row,col);
+            if (position.onBoard() && (this.isEmpty(position) || this.isOpposite(position,color))) {
+                targets.add(position);
+            }
+        }
+
+        for (Position target : targets) {
+            Position start = new Position(row,col);
+            ChessMove move = new ChessMove(start,target);
+            moves.add(move);
+        }
+
+        return moves;
+    }
+
+
+    public ArrayList<ChessMove> legalMoves () {
+        ArrayList<ChessMove> retval = new ArrayList();
 
         String color;
 
@@ -65,52 +164,9 @@ public class Board {
 
                 // white goes up board, black down
                 if (piece.color == color) {
-                    // System.out.println("piece belongs to  " + color + " player");
 
                     if (piece.isPawn()) {
-                        // REALLY REFACTOR THIS
-                        // System.out.println("figure moves for " + color + " " + piece.piece);
-                        // white pawns in 1 can move 2 if empty
-                        // black pawns in 6 can move 2 if empty
-                        // otherwise can move 1 if empty - HANDLED
-                        // can take diagnoally 1 if opposite color
-                        if (color == "black") {
-                            if (row > 0) {
-                                this.moveIfEmpty(retval,row,col,row-1,col);
-                                
-                                if (col > 0) {
-                                    this.takeIfOpposite(retval,row,col,row-1,col-1);
-                                }
-                                
-                                if (col < 7) {
-                                    this.takeIfOpposite(retval,row,col,row-1,col+1);
-                                }
-                            }
-                            if (row == 6) {
-                                Piece target = board[row-1][col];
-                                if (target.isEmpty()) {
-                                    this.moveIfEmpty(retval,row,col,row-2,col);
-                                }
-                            }
-                        } else if (color == "white") {
-                            if (row < 7) {
-                                this.moveIfEmpty(retval,row,col,row+1,col);
-                                
-                                if (col > 0) {
-                                    this.takeIfOpposite(retval,row,col,row+1,col-1);
-                                }
-                                
-                                if (col < 7) {
-                                    this.takeIfOpposite(retval,row,col,row+1,col+1);
-                                }
-                            }
-                            if (row == 1) {
-                                Piece target = board[row+1][col];
-                                if (target.isEmpty()) {
-                                    this.moveIfEmpty(retval,row,col,row+2,col);
-                                }
-                            }
-                        }
+                        retval.addAll(this.pawnMoves(row,col,color));
                     } 
                     if (piece.isRook()) {
                         // System.out.println("figure moves for " + color + " " + piece.piece);
@@ -119,7 +175,7 @@ public class Board {
                         // System.out.println("figure moves for " + color + " " + piece.piece);
                     } 
                     if (piece.isKnight()) {
-                        // System.out.println("figure moves for " + color + " " + piece.piece);
+                        retval.addAll(this.knightMoves(row,col,color));
                     } 
                     if (piece.isQueen()) {
                         // System.out.println("figure moves for " + color + " " + piece.piece);
@@ -150,15 +206,7 @@ public class Board {
         return colInt;
     }
 
-    public String makeString(int row, int col)
-    {
-        char first = (char)('a' + col);
-        char second = (char)('0' + row + 1);
-        String retval = String.valueOf(first) + String.valueOf(second);
-        return retval;        
-    }
-
-    public void move(chessMove theMove) {
+    public void move(ChessMove theMove) {
         // for (int row=0; row<8; row++) {
         //     for(int col=0; col<8; col++) {
         //         System.out.println("(" + row + "," +  col + ") is " + board[row][col].abbreviation());
@@ -231,13 +279,18 @@ public class Board {
 
 }
 
-public class chessMove {
+public class ChessMove {
     String start;
     String stop;
     
-    public chessMove (String start, String stop) {
+    public ChessMove (String start, String stop) {
         this.start = start;
         this.stop  = stop;
+    }
+
+    public ChessMove (Position start, Position stop) {
+        this.start = start.makeString();
+        this.stop  = stop.makeString();
     }
 
     public void print () {
@@ -261,23 +314,11 @@ public class Chess {
         // board.print();
         // this.listOutMoves();
         
-        board.move(new chessMove("e2","e4"));
+        board.move(new ChessMove("e2","e4"));
         board.print();
         this.listOutMoves();
 
-        board.move(new chessMove("e7","e5"));
-        board.print();
-        this.listOutMoves();
-
-        board.move(new chessMove("g1","f3"));
-        board.print();
-        this.listOutMoves();
-
-        board.move(new chessMove("g8","f6"));
-        board.print();
-        this.listOutMoves();
-
-        board.move(new chessMove("d7","d5"));
+        board.move(new ChessMove("e7","e5"));
         board.print();
         this.listOutMoves();
     }
@@ -286,28 +327,54 @@ public class Chess {
 
         if (board.whiteToPlay) {
             System.out.println();
-            ArrayList<chessMove> whiteMoves = board.legalMoves();
+            ArrayList<ChessMove> whiteMoves = board.legalMoves();
             System.out.print("white moves: ");
-            for (chessMove move : whiteMoves) {
+            for (ChessMove move : whiteMoves) {
                 move.print();
                 System.out.print(" ");
             }
         }
         else {
             System.out.println();
-            ArrayList<chessMove> blackMoves = board.legalMoves();
+            ArrayList<ChessMove> blackMoves = board.legalMoves();
             System.out.print("black moves: ");
-            for (chessMove move : blackMoves) {
+            for (ChessMove move : blackMoves) {
                 move.print();
                 System.out.print(" ");
             }        
         }
-        
-
-        // these could be put into a (whiteMoves / blackMoves) array
-
-
     }
+
+}
+
+public class Position {
+    int r;
+    int c;
+
+    public Position(int row, int column) {
+        this.r = row;
+        this.c = column;
+    }
+
+    public void add(int row, int column) {
+        this.r += row;
+        this.c += column;
+    }
+
+    public boolean onBoard() {
+        if (this.r >= 0 && this.r < 8 && this.c >=0 && this.c < 8)
+            return true;
+        else
+            return false;
+    }
+
+    public String makeString() {
+        char first = (char)('a' + this.c);
+        char second = (char)('0' + this.r + 1);
+        String retval = String.valueOf(first) + String.valueOf(second);
+        return retval;        
+    }
+
 
 }
 
