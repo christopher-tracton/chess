@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.ArrayList;
+
 public class Piece {
     String color;
     String piece;
@@ -58,6 +60,47 @@ public class Piece {
         } else {
             return 0;
         }
+    }
+
+    ArrayList<Position> directions() {
+        ArrayList<Position> directions = new ArrayList<Position>();
+
+        if (this.isKnight()) {
+            directions.add(new Position(1, 2));
+            directions.add(new Position(1, -2));
+            directions.add(new Position(2, 1));
+            directions.add(new Position(2, -1));
+            directions.add(new Position(-1, 2));
+            directions.add(new Position(-1, -2));
+            directions.add(new Position(-2, 1));
+            directions.add(new Position(-2, -1));
+        }
+        if (this.isBishop() || this.isQueen() || this.isKing()) {
+            directions.add(new Position(1,-1));
+            directions.add(new Position(1,1));
+            directions.add(new Position(-1,-1));
+            directions.add(new Position(-1,1));
+        }
+        if (this.isRook() || this.isQueen() || this.isKing()) {
+            directions.add(new Position(0,-1));
+            directions.add(new Position(0,1));
+            directions.add(new Position(1,0));
+            directions.add(new Position(-1,0));
+        }
+
+        return directions;
+    }
+
+    int maxSteps() {
+
+        if (this.isKnight() || this.isKing()) {
+            return 2;
+        }
+        if (this.isBishop() || this.isRook() || this.isQueen()) {
+            return 8;
+        }
+
+        return 0;
     }
 
 
