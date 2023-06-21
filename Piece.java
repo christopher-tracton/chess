@@ -42,6 +42,25 @@ public class Piece {
         }
     }
 
+    public int value() {
+        if (this.piece == "pawn") {
+            return 1;
+        } else if (this.piece == "rook") {
+            return 5;
+        } else if (this.piece == "bishop") {
+            return 3;
+        } else if (this.piece == "knight") {
+            return 3;
+        } else if (this.piece == "queen") {
+            return 9;
+        } else if (this.piece == "king") {
+            return 1000;
+        } else {
+            return 0;
+        }
+    }
+
+
     public boolean isEmpty() {
         if (this.color == "EMPTY" || this.piece == "EMPTY") {
             return true;

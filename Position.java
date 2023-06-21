@@ -9,9 +9,8 @@ public class Position {
         this.c = column;
     }
 
-    public void add(int row, int column) {
-        this.r += row;
-        this.c += column;
+    public Position add(int row, int column) {
+        return new Position(this.r + row, this.c + column);
     }
 
     public boolean onBoard() {
@@ -26,6 +25,14 @@ public class Position {
         char second = (char) ('0' + this.r + 1);
         String retval = String.valueOf(first) + String.valueOf(second);
         return retval;
+    }
+
+    public Position mutli(int steps) {
+        return new Position(this.r * steps, this.c * steps);
+    }
+
+    public String toString() {
+        return "(" + r + "," + c + ")";
     }
 }
 

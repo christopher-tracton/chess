@@ -24,6 +24,30 @@ public class Chess {
         board.move(new ChessMove("e7","e5"));
         board.print();
         this.listOutMoves();
+
+        board.move(new ChessMove("f1","c4"));
+        board.print();
+        this.listOutMoves();
+
+        board.move(new ChessMove("a7","a5"));
+        board.print();
+        this.listOutMoves();
+
+        board.move(new ChessMove("a2","a4"));
+        board.print();
+        this.listOutMoves();
+
+        board.move(new ChessMove("d7","d5"));
+        board.print();
+        this.listOutMoves();
+
+        board.move(new ChessMove("e4","d5"));
+        board.print();
+        this.listOutMoves();
+
+        board.move(new ChessMove("d8","d5"));
+        board.print();
+        this.listOutMoves();
     }
 
     public void listOutMoves() {
