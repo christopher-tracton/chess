@@ -1,16 +1,26 @@
 package chess;
 
 import java.util.ArrayList;
+import sun.misc.Signal;
 
 
 public class Chess {
 
     Board board;
-    
+    boolean ok = true;
+
     public Chess() {
         this.board = new Board(2);
+    }
 
-        boolean ok = true;
+    public void interruptStop() {
+        ok = false;
+        board.history.dumpHistory();
+    }
+
+    public void run() {
+
+        Signal.handle(new Signal("INT"), signal -> interruptStop());
 
         while (ok) {
             board.print();
@@ -23,62 +33,15 @@ public class Chess {
             else {
                 this.listOutMoves(moves);
                 ChessMove bestMove = this.bestMove(moves);
-                System.out.print("move " + bestMove.toString() + "\n\n");
                 board.move(bestMove);
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 }
                 catch(Exception e) {
 
                 }
             }
         }
-
-
-
-        // board.acceptMoveFromConsole();
-        // board.print();
-        // this.listOutMoves();
-        
-//        board.move(new ChessMove("e2","e4"));
-//        board.print();
-//        this.listOutMoves();
-//        this.printBestMove();
-//
-//        board.move(new ChessMove("e7","e5"));
-//        board.print();
-//        this.listOutMoves();
-//        this.printBestMove();
-//
-//        board.move(new ChessMove("f1","c4"));
-//        board.print();
-//        this.listOutMoves();
-//        this.printBestMove();
-//
-//        board.move(new ChessMove("a7","a5"));
-//        board.print();
-//        this.listOutMoves();
-//        this.printBestMove();
-//
-//        board.move(new ChessMove("a2","a4"));
-//        board.print();
-//        this.listOutMoves();
-//        this.printBestMove();
-//
-//        board.move(new ChessMove("d7","d5"));
-//        board.print();
-//        this.listOutMoves();
-//        this.printBestMove();
-//
-//        board.move(new ChessMove("e4","d5"));
-//        board.print();
-//        this.listOutMoves();
-//        this.printBestMove();
-//
-//        board.move(new ChessMove("d8","d5"));
-//        board.print();
-//        this.listOutMoves();
-//        this.printBestMove();
     }
 
     public void currentPlayerLoses() {
@@ -90,6 +53,8 @@ public class Chess {
         else {
             System.out.print("black has lost");
         }
+
+        board.history.dumpHistory();
     }
     public void listOutMoves(ArrayList<ChessMove> moves) {
         System.out.println();
@@ -115,10 +80,10 @@ public class Chess {
         System.out.println();
 
         if (board.whiteToPlay) {
-            System.out.print("white's best move: " + chessMove);
+            System.out.print("white's best move: " + chessMove + "\n\n" );
         }
         else {
-            System.out.print("black's best move: " + chessMove);
+            System.out.print("black's best move: " + chessMove + "\n\nj");
         }
 
         return chessMove;

@@ -5,6 +5,7 @@ import java.util.Random;
 
 public class Board {
 
+    History history;
     Piece board[][];
     boolean whiteToPlay = true;
     int layer = 1;
@@ -14,6 +15,7 @@ public class Board {
         board = new Piece[8][8];
         initialSetup();
         this.maxLayers = maxLayers;
+        history = new History();
     }
 
     public Board(Board boardToCopy) {
@@ -26,6 +28,7 @@ public class Board {
 
         whiteToPlay = boardToCopy.whiteToPlay;
         layer = boardToCopy.layer + 1;
+        history = new History(boardToCopy.history);
     }
 
     public void takeIfOpposite(ArrayList<ChessMove> retval, int row1, int col1, int row2, int col2) {
@@ -203,7 +206,7 @@ public class Board {
             bestResponseValue = bestResponse.value;
 
             if (bestResponseValue > 0) {
-                System.out.print("\nafter " + possibleMove + "opponent is able to " + bestResponse + " with value " + bestResponseValue);
+                System.out.print("\nafter " + possibleMove + " opponent is able to " + bestResponse + " with value " + bestResponseValue);
             }
         }
 
@@ -259,25 +262,16 @@ public class Board {
     }
 
     public void move(ChessMove theMove) {
-        // for (int row=0; row<8; row++) {
-        //     for(int col=0; col<8; col++) {
-        //         System.out.println("(" + row + "," +  col + ") is " + board[row][col].abbreviation());
-        //     }
-        // }
 
         int row1 = convertToRow(theMove.start);
         int col1 = convertToColumn(theMove.start);
         int row2 = convertToRow(theMove.stop);
         int col2 = convertToColumn(theMove.stop);
 
-//        System.out.println("\n move : " + theMove.toString());
-//        System.out.println("\nmoving from (" + row1 + "," +  col1 + ") to (" + row2 + "," + col2 + ")");
-//        System.out.println("(" + row1 + "," +  col1 + ") was " + board[row1][col1].abbreviation() + " and (" + row2 + "," + col2 + ") was " + board[row2][col2].abbreviation());
-
         board[row2][col2] = board[row1][col1];
         board[row1][col1] = new Piece();
 
-//        System.out.println("(" + row1 + "," +  col1 + ") is now " + board[row1][col1].abbreviation() + " and (" + row2 + "," + col2 + ") is now " + board[row2][col2].abbreviation());
+        history.add(theMove);
 
         whiteToPlay = !whiteToPlay;
     }
