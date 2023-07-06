@@ -6,14 +6,11 @@ public class History {
     ArrayList<ChessMove> theGame;
 
     public History () {
-        theGame = new ArrayList<ChessMove>();
+        theGame = new ArrayList<>();
     }
     public History (History historyToCopy) {
-        theGame = new ArrayList<ChessMove>();
-
-        for (ChessMove move : historyToCopy.theGame) {
-            theGame.add(move);
-        }
+        theGame = new ArrayList<>();
+        theGame.addAll(historyToCopy.theGame);
     }
     public void add(ChessMove nextMove) {
         theGame.add(nextMove);

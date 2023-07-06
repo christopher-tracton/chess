@@ -2,12 +2,14 @@ package chess;
 
 import java.util.ArrayList;
 import sun.misc.Signal;
+import java.util.Scanner;
 
 
 public class Chess {
 
     Board board;
     boolean ok = true;
+    boolean humanPlaysWhite = true;
 
     public Chess() {
         this.board = new Board(2);
@@ -21,6 +23,7 @@ public class Chess {
     public void run() {
 
         Signal.handle(new Signal("INT"), signal -> interruptStop());
+        Scanner myScanner = new Scanner(System.in);
 
         while (ok) {
             board.print();
@@ -33,7 +36,16 @@ public class Chess {
             else {
                 this.listOutMoves(moves);
                 ChessMove bestMove = this.bestMove(moves);
-                board.move(bestMove);
+
+                if (board.whiteToPlay && humanPlaysWhite) {
+                    System.out.print("Your move? ");
+                    String moveString = myScanner.nextLine();
+                    ChessMove myMove = new ChessMove(moveString);
+                    board.move(myMove);
+                }
+                else {
+                    board.move(bestMove);
+                }
                 try {
                     Thread.sleep(500);
                 }

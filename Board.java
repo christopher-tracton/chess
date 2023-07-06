@@ -31,6 +31,7 @@ public class Board {
         history = new History(boardToCopy.history);
     }
 
+
     public void takeIfOpposite(ArrayList<ChessMove> retval, int row1, int col1, int row2, int col2) {
         int moveValue;
         Piece target = board[row2][col2];
@@ -39,12 +40,36 @@ public class Board {
         if (!target.isEmpty() && (target.color != source.color)) {
             Position startPos = new Position(row1,col1);
             Position stopPos  = new Position(row2,col2);
-
-            moveValue = this.value(stopPos);
-            ChessMove move = new ChessMove(startPos, stopPos, moveValue);
-            move.value -= this.bestResponseValue(move);
-            retval.add(move);
+            ChessMove move = assignMoveValue(startPos, stopPos);
+            if (move.isLegal) {
+                retval.add(move);
+            }
         }
+    }
+
+    public ChessMove assignMoveValue(Position startPos, Position stopPos) {
+        int moveValue = this.value(stopPos);
+        ChessMove move = new ChessMove(startPos, stopPos, moveValue);
+
+        int BRV = 0;
+
+        if ((this.layer == 2) && (moveValue == 1000)) {
+            BRV = 0;  // just consider the move.value which has already been assigned to move
+//            System.out.print("\n" + move + "don't continue to evaluate - it doesn't matter - prior move is illegal\n");
+        }
+        else {
+            BRV = this.bestResponseValue(move);
+        }
+
+        if ((this.layer == 1) && (BRV == 1000)) {
+            move.isLegal = false;
+            System.out.print(" " + move + " is illegal");
+        }
+        else {
+            move.value -= BRV;
+        }
+
+        return move;
     }
 
     public void moveIfEmpty(ArrayList<ChessMove> retval, int row1, int col1, int row2, int col2) {
@@ -55,12 +80,10 @@ public class Board {
         if (target.isEmpty()) {
             Position startPos = new Position(row1,col1);
             Position stopPos = new Position(row2, col2);
-
-
-            moveValue = this.value(stopPos);
-            ChessMove move = new ChessMove(startPos, stopPos, moveValue);
-            move.value -= this.bestResponseValue(move);
-            retval.add(move);
+            ChessMove move = assignMoveValue(startPos, stopPos);
+            if (move.isLegal) {
+                retval.add(move);
+            }
         }
     }
 
@@ -165,14 +188,14 @@ public class Board {
         }
 
         for (Position target : targets) {
-            moveValue = this.value(target);
             Position start = new Position(row,col);
-            ChessMove move = new ChessMove(start,target,moveValue);
-            move.value -= this.bestResponseValue(move);
-
-            moves.add(move);
+            ChessMove move = assignMoveValue(start, target);
+            if (move.isLegal) {
+                moves.add(move);
+            }
         }
 
+//        System.out.print("\nPiece Moves : " + moves + "\n");
         return moves;
     }
 
@@ -196,6 +219,7 @@ public class Board {
     }
 
     public int bestResponseValue(ChessMove possibleMove) {
+//        System.out.print("\nlayer " + layer + " considering " + possibleMove + " ");
         int bestResponseValue = 0;
 
         if (this.layer < this.maxLayers) {
@@ -207,6 +231,12 @@ public class Board {
 
             if (bestResponseValue > 0) {
                 System.out.print("\nafter " + possibleMove + " opponent is able to " + bestResponse + " with value " + bestResponseValue);
+                try {
+                    Thread.sleep(250);
+                }
+                catch(Exception e) {
+
+                }
             }
         }
 
@@ -230,11 +260,7 @@ public class Board {
             for (int col = 0; col < 8; col++) {
                 Piece piece = board[row][col];
 
-                // System.out.println("moves for " + piece.abbreviation());
-
-                // white goes up board, black down
                 if (piece.color.equals(color)) {
-
                     if (piece.isPawn()) {
                         retval.addAll(this.pawnMoves(row,col,color));
                     } else if (!piece.isEmpty()) {
